@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Base.EntitiesBase.Concrete;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,8 +18,13 @@ namespace BusinessLayer.Constants
         public static string ProductCategoryCountError ="Bu kategoride en fazla 10 ürün yerleştirilebilirsiniz.";
         public static string HaveSameProductName="Aynı isimde ürün adı olamaz";
         public static string CategoryCountLimited="Toplam kategori sayısı 15'i geçemez. ";
-
-        
+        public static string? AuthorizationDenied = "Yetkin yok";
+        public static string UserRegistered = "kullanıcı kayıt edildi";
+        public static string UserNotFound = "kullanıcı bulunamadı";
+        public static string PasswordError = "parola hatası";
+        public static string SuccessfulLogin = "Giriş başarılı";
+        public static string UserAlreadyExists = "kullanıcı zaten mevcut";
+        public static string AccessTokenCreated = "token oluşturuldu";
     }
 }
 // bu sınıf Business'e yazılır. 

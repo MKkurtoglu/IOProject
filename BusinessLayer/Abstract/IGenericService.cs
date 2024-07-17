@@ -12,5 +12,7 @@ namespace BusinessLayer.Abstract
         IDataResult<List<T>> GetAll();
         IDataResult<T> Get(int id);
         IResult Insert(T entity);
+        IResult Update(T entity);
+        IResult Delete(T entity);
     }
 }

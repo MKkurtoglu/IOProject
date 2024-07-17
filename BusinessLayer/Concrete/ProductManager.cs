@@ -17,18 +17,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Base.Utilities.Business;
+using BusinessLayer.BusinessAspects.Autofac;
 
 namespace BusinessLayer.Concrete
 {
     public class ProductManager : IProductService
     {
-        IProductDal _productDal;
-        ICategoryService _categoryService;
+        private readonly IProductDal _productDal;
+        private readonly  ICategoryService _categoryService;
+
         public ProductManager(IProductDal productDal, ICategoryService categoryService)
         {
             _productDal = productDal;
             _categoryService = categoryService;
-
         }
         public IDataResult<Product> Get(int id)
         {
@@ -59,7 +60,7 @@ namespace BusinessLayer.Concrete
 
 
 
-
+        //[SecuredOperation("admin,productAdd")]
         [ValidationAspect(typeof(ProductValidator))]
         public IResult Insert(Product product)
         {
@@ -109,6 +110,16 @@ namespace BusinessLayer.Concrete
                 }
                 return new SuccessResult();
             }
+        }
+
+        public IResult Update(Product entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IResult Delete(Product entity)
+        {
+            throw new NotImplementedException();
         }
     }
 }

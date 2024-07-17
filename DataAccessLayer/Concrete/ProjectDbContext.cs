@@ -1,4 +1,5 @@
-﻿using EntitiesLayer.Concrete;
+﻿using Base.EntitiesBase.Concrete;
+using EntitiesLayer.Concrete;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace DataAccessLayer.Concrete
         {
             //normalde gerçek projede server'ın nerede olduğunu belirtmemmiz için
             // aşağıdaki metot içerisine @"server= 180.141.1.12 gibi ip adresi girilir.
-            optionsBuilder.UseSqlServer(@"server=LAPTOP-59IK1A6E\SQLEXPRESS03;Database=Northwind;integrated security=true;Trusted_Connection=True;encrypt=false;");
+            optionsBuilder.UseSqlServer(@"server=DESKTOP-F2H9TMP;Database=Northwind;integrated security=true;Trusted_Connection=True;encrypt=false;");
             // yukarıdaki parametrede trusted_con.. kısmına true yaptığımız da kullanıcı şifre gerektirmiyor. direkt bağlantı. 
             // bu güvensiz lduğunu anlamına gelmiyor. güçlü güvenilir domainlerde bu şekilde kullanılır. 
             // ya da alternatif çözüm olarak kullancıı adı vs girilebilir o kısıma
@@ -24,5 +25,8 @@ namespace DataAccessLayer.Concrete
         DbSet<Product> Products { get; set; } //bu prop'lar database'deki hangi tabloya hangi class ile eşleşeceğini belirttik.
         DbSet<Category> Categories { get; set; }
         DbSet<Customer> Customers { get; set; }
+        public DbSet<OperationClaim> OperationClaims { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<UserOperationClaim> UserOperationClaims { get; set; }
     }
 }

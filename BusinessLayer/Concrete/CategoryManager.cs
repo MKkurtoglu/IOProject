@@ -20,6 +20,12 @@ namespace BusinessLayer.Concrete
             _categoryService = categoryService;
 
         }
+
+        public IResult Delete(Category entity)
+        {
+            throw new NotImplementedException();
+        }
+
         public IDataResult<Category> Get(int id)
         {
             _categoryService.Get(id);
@@ -42,6 +48,11 @@ namespace BusinessLayer.Concrete
             _categoryService.Insert(entity);
             return new SuccessResult();
 
+        }
+
+        public IResult Update(Category entity)
+        {
+            throw new NotImplementedException();
         }
 
         private IResult CheckCountCategory()

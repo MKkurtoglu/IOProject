@@ -17,6 +17,11 @@ namespace BusinessLayer.Concrete
             _customerDal = customerDal;
         }
 
+        public IResult Delete(Customer entity)
+        {
+            throw new NotImplementedException();
+        }
+
         public IDataResult<Customer> Get(int id)
         {
             throw new NotImplementedException();
@@ -33,6 +38,11 @@ namespace BusinessLayer.Concrete
         }
 
         public IResult Insert(Customer entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IResult Update(Customer entity)
         {
             throw new NotImplementedException();
         }
