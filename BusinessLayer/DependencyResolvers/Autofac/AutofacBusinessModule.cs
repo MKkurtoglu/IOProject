@@ -22,11 +22,12 @@ namespace BusinessLayer.DependencyResolvers.Autofac
         // autofac ile bu projeye başka bir apı ekler isek buradan direkt kullanabiliriz öncekinde problem yaşaaybilrdik o apinin de kendi startup'una IoC yazılması lazım gerekecekti.
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<CategoryManager>().As<ICategoryService>();
+            builder.RegisterType<EfCategoryDal>().As<ICategoryDal>();
             builder.RegisterType<ProductManager>().As<IProductService>();
             builder.RegisterType<EfProductDal>().As<IProductDal>();
 
-            builder.RegisterType<CategoryManager>().As<ICategoryService>();
-            builder.RegisterType<EfCategoryDal>().As<ICategoryDal>();
+           
 
             builder.RegisterType<CustomerManager>().As<ICustomerService>();
             builder.RegisterType<EfCustomerDal>().As<ICustomerDal >();

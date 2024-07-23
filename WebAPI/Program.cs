@@ -1,19 +1,16 @@
-using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using Base.DependencyResolvers;
-using Base.Extensions;
-using Base.Utilities.IoC;
-using Base.Utilities.Security.Encryption;
-using Base.Utilities.Security.JWT;
+using Autofac;
 using BusinessLayer.Abstract;
 using BusinessLayer.Concrete;
 using BusinessLayer.DependencyResolvers.Autofac;
 using DataAccessLayer.Abstract;
 using DataAccessLayer.Concrete.EntityFramework;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.IdentityModel.Tokens;
 using Base.DependencyResolvers;
+using Base.Utilities.Security.JWT;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Base.Utilities.Security.Encryption;
+using Base.Extensions;
 
 
 

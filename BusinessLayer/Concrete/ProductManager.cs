@@ -18,13 +18,15 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Base.Utilities.Business;
 using BusinessLayer.BusinessAspects.Autofac;
+using Base.Aspects.Autofac.Cache;
+using Base.Aspects.Autofac.Transaction;
 
 namespace BusinessLayer.Concrete
 {
     public class ProductManager : IProductService
     {
-        private readonly IProductDal _productDal;
-        private readonly  ICategoryService _categoryService;
+          IProductDal _productDal;
+        private   ICategoryService _categoryService;
 
         public ProductManager(IProductDal productDal, ICategoryService categoryService)
         {
@@ -44,7 +46,7 @@ namespace BusinessLayer.Concrete
             }
 
         }
-
+        [CacheAspect]
         public IDataResult<List<Product>> GetAll()
         {
             if (DateTime.Now.Hour == 0)
@@ -111,10 +113,17 @@ namespace BusinessLayer.Concrete
                 return new SuccessResult();
             }
         }
-
+        [TransactionScopeAspect]
+        [ValidationAspect(typeof(ProductValidator))]
         public IResult Update(Product entity)
         {
-            throw new NotImplementedException();
+            _productDal.Update(entity);
+            if (entity.UnitPrice < 100) {
+                throw new Exception();
+            }
+            entity.ProductName = entity.ProductName + "revize";
+            _productDal.Update(entity);
+            return new SuccessResult();
         }
 
         public IResult Delete(Product entity)

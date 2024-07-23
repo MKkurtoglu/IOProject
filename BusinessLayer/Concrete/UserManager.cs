@@ -11,6 +11,7 @@ using Base.Aspects.Autofac.Validation;
 using BusinessLayer.ValidationRules.FluentValidation;
 using Base.EntitiesBase.Concrete;
 using DataAccessLayer.Concrete.EntityFramework;
+using Base.Aspects.Autofac.Cache;
 
 namespace BusinessLayer.Concrete
 {
@@ -35,7 +36,7 @@ namespace BusinessLayer.Concrete
             var result = _userDal.Get(u=>u.Id== id);
             return new SuccessDataResult<User>(result);
         }
-
+        [CacheAspect]
         public IDataResult<List<User>> GetAll()
         {
             var result = _userDal.GetAll();
@@ -61,7 +62,7 @@ namespace BusinessLayer.Concrete
                 var result = _userDal.GetClaims(user);
             return new SuccessDataResult<List<OperationClaim>>(result);
         }
-
+        [CacheRemoveAspect("IUserService.get")] // sadece get yazılsa idi bu sefer key'inde get olan tüm cache leri silecekti. bu sebeple bu şekil özelleştiridk.
         public IResult Insert(User entity)
         {
             _userDal.Add(entity);
