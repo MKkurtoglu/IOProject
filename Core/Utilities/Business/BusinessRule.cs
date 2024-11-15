@@ -21,5 +21,29 @@ namespace Base.Utilities.Business
             }
             return null;
         }
+
+        public static IResult Run(IEnumerable<IResult> results)
+        {
+            foreach (var result in results)
+            {
+                if (result != null && !result.IsSuccess)
+                {
+                    return result;  // İlk başarısız sonucu döner
+                }
+            }
+            return new SuccessResult(); // Tüm sonuçlar başarılıysa başarı sonucu döner
+        }
+
+        public static async Task<IResult> RunAsync(params Task<IResult>[] results)
+        {
+            foreach (var result in results)
+            {
+                if (result != null && !result.Result.IsSuccess)
+                {
+                    return result.Result;  // İlk başarısız sonucu döner
+                }
+            }
+            return new SuccessResult();
+        }
     }
 }

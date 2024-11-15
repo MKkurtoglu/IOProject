@@ -4,26 +4,27 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Base.CrossCuttingConcerns.Caching.MicrosoftCache
 {
-    // burada inject işini ctor ile yapamıyoruz. Aspectler bu ssitemin dışında.
-    // bu assembly de yapılan işlem şu şekilde özetlebilir. :
-
-    // 
     public class MemoryCacheManager : ICacheManager
     {
-        IMemoryCache _cache;
+        private IMemoryCache _cache;
+        private readonly List<string> _cacheKeys = new List<string>();  // Anahtar listesini yönetiyoruz.
+
         public MemoryCacheManager()
         {
             _cache = ServiceTool.ServiceProvider.GetService<IMemoryCache>();
         }
+
         public void Add(string key, object value, int duration)
         {
-            _cache.Set(key,value,TimeSpan.FromMinutes(duration));
+            _cache.Set(key, value, TimeSpan.FromMinutes(duration));
+            if (!_cacheKeys.Contains(key))
+            {
+                _cacheKeys.Add(key); // Anahtarları listeye ekliyoruz.
+            }
         }
 
         public T Get<T>(string key)
@@ -44,26 +45,20 @@ namespace Base.CrossCuttingConcerns.Caching.MicrosoftCache
         public void Remove(string key)
         {
             _cache.Remove(key);
+            _cacheKeys.Remove(key);  // Anahtar listesinden de siliyoruz.
         }
 
         public void RemoveByPattern(string pattern)
         {
-            var cacheEntriesCollectionDefinition = typeof(MemoryCache).GetProperty("EntriesCollection", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var cacheEntriesCollection = cacheEntriesCollectionDefinition.GetValue(_cache) as dynamic;
-            List<ICacheEntry> cacheCollectionValues = new List<ICacheEntry>();
-
-            foreach (var cacheItem in cacheEntriesCollection)
-            {
-                ICacheEntry cacheItemValue = cacheItem.GetType().GetProperty("Value").GetValue(cacheItem, null);
-                cacheCollectionValues.Add(cacheItemValue);
-            }
-
+            // Desenle eşleşen anahtarları bulmak için regex kullanıyoruz.
             var regex = new Regex(pattern, RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase);
-            var keysToRemove = cacheCollectionValues.Where(d => regex.IsMatch(d.Key.ToString())).Select(d => d.Key).ToList();
+            var keysToRemove = _cacheKeys.Where(k => regex.IsMatch(k)).ToList();
 
+            // Bulunan anahtarları hem cache'den hem de anahtar listesinden siliyoruz.
             foreach (var key in keysToRemove)
             {
                 _cache.Remove(key);
+                _cacheKeys.Remove(key);
             }
         }
     }

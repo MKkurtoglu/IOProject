@@ -14,5 +14,10 @@ namespace Base.Extensions
         {
             return claimsPrincipal?.Claims(ClaimTypes.Role);
         }
+
+        public static string FindId(this ClaimsPrincipal claimsPrincipal)
+        {
+            return claimsPrincipal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        }
     }
 }

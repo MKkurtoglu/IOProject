@@ -7,6 +7,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Collections.Generic;
 using System;
+using Microsoft.AspNetCore.Http;
+using Base.Utilities.IoC;
+using Microsoft.Extensions.DependencyInjection;
 namespace Base.Utilities.Security.JWT
 {
     public class JwtHelper : ITokenHelper
@@ -14,9 +17,12 @@ namespace Base.Utilities.Security.JWT
         public IConfiguration Configuration { get; }
         private TokenOptions _tokenOptions;
         private DateTime _accessTokenExpiration;
+        private IHttpContextAccessor _httpContextAccessor;
         public JwtHelper(IConfiguration configuration)
         {
             Configuration = configuration;
+            _httpContextAccessor = ServiceTool.ServiceProvider.GetService<IHttpContextAccessor>();
+
             _tokenOptions = Configuration.GetSection("TokenOptions").Get<TokenOptions>();
 
         }
@@ -60,6 +66,14 @@ namespace Base.Utilities.Security.JWT
             claims.AddRoles(operationClaims.Select(c => c.Name).ToArray());
 
             return claims;
+        }
+
+        public string GetId()
+        {
+            var userId = _httpContextAccessor.HttpContext.User.FindId();
+
+            return userId;
+
         }
     }
 }   

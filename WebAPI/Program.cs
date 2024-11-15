@@ -16,6 +16,10 @@ using Base.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
+
+
 builder.Host
     .UseServiceProviderFactory(new AutofacServiceProviderFactory())
     .ConfigureContainer<ContainerBuilder>((container) =>
@@ -26,7 +30,7 @@ builder.Host
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers();builder.Services.AddCors();
 var tokenOptions = builder.Configuration.GetSection("TokenOptions").Get<TokenOptions>();
 //builder.Services.AddSingleton<IProductService,ProductManager>();
 //builder.Services.AddSingleton<IProductDal, EfProductDal>();var tokenOptions = builder.Configuration.GetSection("Tokenoptions").Get<TokenOptions>();
@@ -45,6 +49,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     
 });
 
+
 builder.Services.AddDependencyResolvers( new CoreModule()  // istediðimiz kadar module ekleyebileceðiz.
     );
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -59,9 +64,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.ConfigureCustomExceptionMiddleware(); // bizim custom olarak yazdýðýmýz exception middleware'i
+app.UseDeveloperExceptionPage();
 
+app.UseCors(builder =>
+    builder.WithOrigins("http://localhost:4200")
+          .AllowAnyHeader()
+          .AllowAnyMethod());
 app.UseHttpsRedirection();
-
+app.UseStaticFiles();
+app.UseCors("AllowSpecificOrigins");
 app.UseAuthorization();
 
 app.MapControllers();

@@ -2,6 +2,7 @@
 using Base.DataAccessBase;
 using Base.EntitiesBase.Concrete;
 using Base.Utilities.Results;
+using EntitiesLayer.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,10 @@ namespace BusinessLayer.Abstract
 {
     public interface IUserService : IGenericService<User>
     {
-        IDataResult< List<OperationClaim> > GetClaims(User user);
-        
-        IDataResult< User > GetByMail(string email);
+        Task<IDataResult<List<OperationClaim>>> GetClaimsAsync(User user);
+        Task<IDataResult<User>> GetByMailAsync(string email);
+        Task<IDataResult<User>> GetByIdAsync();
+        Task<IDataResult<UserProfileDto>> GetDtoAsync();
     }
+
 }

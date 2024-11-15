@@ -9,7 +9,7 @@ namespace WebAPI.Controllers
     [ApiController]
     public class AuthController : Controller
     {
-        private IAuthService _authService;
+        private readonly IAuthService _authService;
 
         public AuthController(IAuthService authService)
         {
@@ -17,40 +17,46 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("login")]
-        public ActionResult Login(UserForLoginDto userForLoginDto)
+        public async Task<IActionResult> LoginAsync(UserForLoginDto userForLoginDto)
         {
-            var userToLogin = _authService.Login(userForLoginDto);
+            var userToLogin = await _authService.LoginAsync(userForLoginDto);
             if (!userToLogin.IsSuccess)
-            {
-                return BadRequest(userToLogin.Message);
-            }
+                return BadRequest(new { message = userToLogin.Message });
 
-            var result = _authService.CreateAccessToken(userToLogin.Data);
-            if (result.IsSuccess)
-            {
-                return Ok(result.Data);
-            }
-
-            return BadRequest(result.Message);
+            var result = await _authService.CreateAccessTokenAsync(userToLogin.Data);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
         [HttpPost("register")]
-        public ActionResult Register(UserForRegisterDto userForRegisterDto)
+        public async Task<IActionResult> RegisterAsync(UserForRegisterDto userForRegisterDto)
         {
-            var userExists = _authService.UserExists(userForRegisterDto.Email);
+            // Email kontrolü
+            var userExists = await _authService.UserExistsAsync(userForRegisterDto.Email);
             if (!userExists.IsSuccess)
-            {
-                return BadRequest(userExists.Message);
-            }
+                return BadRequest(new { message = userExists.Message });
 
-            var registerResult = _authService.Register(userForRegisterDto, userForRegisterDto.Password);
-            var result = _authService.CreateAccessToken(registerResult.Data);
-            if (result.IsSuccess)
-            {
-                return Ok(result.Data);
-            }
+            // Kullanıcı kaydı
+            var registerResult = await _authService.RegisterAsync(
+                userForRegisterDto,
+                userForRegisterDto.Password
+            );
 
-            return BadRequest(result.Message);
+            if (!registerResult.IsSuccess)
+                return BadRequest(new { message = registerResult.Message });
+
+            // Token oluşturma
+            var tokenResult = await _authService.CreateAccessTokenAsync(registerResult.Data);
+            return tokenResult.IsSuccess ? Ok(tokenResult) : BadRequest(tokenResult);
+        }
+
+        [HttpPost("updateUser")]
+        public async Task<IActionResult> UpdateUserAsync(UserForUpdateDto userForUpdateDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _authService.UpdateUserAsync(userForUpdateDto);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }
 }

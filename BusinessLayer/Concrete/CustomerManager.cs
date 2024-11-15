@@ -7,44 +7,65 @@ using System.Threading.Tasks;
 using EntitiesLayer.Concrete;
 using DataAccessLayer.Abstract;
 using Base.Utilities.Results;
+
 namespace BusinessLayer.Concrete
 {
     public class CustomerManager : ICustomerService
     {
         ICustomerDal _customerDal;
+
         public CustomerManager(ICustomerDal customerDal)
         {
             _customerDal = customerDal;
         }
 
-        public IResult Delete(Customer entity)
+        // Asynchronous Delete
+        public async Task<IResult> DeleteAsync(Customer entity)
         {
-            throw new NotImplementedException();
+            await _customerDal.DeleteAsync(entity);
+            return new SuccessResult();
         }
 
-        public IDataResult<Customer> Get(int id)
+        // Asynchronous Get by Id
+        public async Task<IDataResult<Customer>> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var stringId = id.ToString();
+            var result = await _customerDal.GetAsync(c => c.CustomerId == stringId);
+            if (result == null)
+            {
+                return new ErrorDataResult<Customer>($"Customer with ID {id} not found.");
+            }
+            return new SuccessDataResult<Customer>(result);
         }
 
-        public IDataResult<List<Customer>> GetAll()
+        // Asynchronous Get All
+        public async Task<IDataResult<List<Customer>>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            var result = await _customerDal.GetAllAsync();
+            return new SuccessDataResult<List<Customer>>(result);
         }
 
-        public List<Customer> GetAllByCountry(string country)
+        // Asynchronous Get All By Country
+        
+
+        // Asynchronous Insert
+        public async Task<IResult> AddAsync(Customer entity)
         {
-            throw new NotImplementedException();
+            await _customerDal.AddAsync(entity);
+            return new SuccessResult();
         }
 
-        public IResult Insert(Customer entity)
+        // Asynchronous Update
+        public async Task<IResult> UpdateAsync(Customer entity)
         {
-            throw new NotImplementedException();
+            await _customerDal.UpdateAsync(entity);
+            return new SuccessResult();
         }
 
-        public IResult Update(Customer entity)
+        public async Task<IDataResult<List<Customer>>> GetAllByCountry(string country)
         {
-            throw new NotImplementedException();
+            var result = await _customerDal.GetAllAsync(c => c.City == country);
+            return new SuccessDataResult<List<Customer>>(result);
         }
     }
 }

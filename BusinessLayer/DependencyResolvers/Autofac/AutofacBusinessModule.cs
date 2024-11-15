@@ -38,6 +38,27 @@ namespace BusinessLayer.DependencyResolvers.Autofac
             builder.RegisterType<AuthManager>().As<IAuthService>();
             builder.RegisterType<JwtHelper>().As<ITokenHelper>();
 
+
+            builder.RegisterType<ImageManager>().As<IImageService>();
+            builder.RegisterType<EfImageDal>().As<IImageDal>();
+
+            builder.RegisterType<ProfileImageManager>().As<IProfileImageService>();
+            builder.RegisterType<EfProfileImageDal>().As<IProfileImageDal>();
+
+            builder.RegisterType<EfBrandDal>().As<IBrandDal>();
+            builder.RegisterType<BrandManager>().As<IBrandService>();
+
+            builder.RegisterType<EfEntityImageDal>().As<IEntityImageDal>();
+            builder.RegisterType<EfModelDal>().As<IModelDal>();
+            builder.RegisterType<ModelManager>().As<IModelService>();
+
+
+            builder.RegisterType<FavoriteManager>().As<IFavoriteService>();
+            builder.RegisterType<EfFavoriteDal>().As<IFavoriteDal>();
+
+            builder.RegisterType<CartManager>().As<ICartService>();
+            builder.RegisterType<EfCartDal>().As<ICartDal>();
+            // aspect için yapılan işlemelr
             var assembly = System.Reflection.Assembly.GetExecutingAssembly(); // assembly getirri hangi assembly peki ? içerisinde çalışan elemanların oldğu amssbly döner..
 
             builder.RegisterAssemblyTypes(assembly).AsImplementedInterfaces() //çalışan uygulamaların olduğu assmebly içerisinde implemente edilmiş interfaceleri bul

@@ -1,13 +1,13 @@
-﻿using EntitiesLayer.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Base.Utilities.Results;
+using BusinessLayer.Abstract;
+using EntitiesLayer.Concrete;
+using EntitiesLayer.DTOs;
 using System.Threading.Tasks;
 
-namespace BusinessLayer.Abstract
+public interface IProductService : IGenericService<Product>
 {
-    public interface IProductService : IGenericService<Product>
-    {
-    }
+    Task<IDataResult<List<ProductDto>>> GetAllByCategoryAsync(int id);
+    Task<IDataResult<List<ProductDto>>> GetAllWithImageAsync();
+    Task<IDataResult<List<ProductDto>>> GetAllDtoAsync();
+    Task<IDataResult<ProductDto>> GetProductDtoAsync(int id);
 }

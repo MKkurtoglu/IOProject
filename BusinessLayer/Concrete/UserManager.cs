@@ -12,68 +12,93 @@ using BusinessLayer.ValidationRules.FluentValidation;
 using Base.EntitiesBase.Concrete;
 using DataAccessLayer.Concrete.EntityFramework;
 using Base.Aspects.Autofac.Cache;
+using Base.Utilities.Security.JWT;
+using Microsoft.AspNetCore.Http;
+using BusinessLayer.BusinessAspects.Autofac;
+using EntitiesLayer.DTOs;
+using Base.Extensions;
 
 namespace BusinessLayer.Concrete
 {
     public class UserManager : IUserService
     {
-        IUserDal _userDal;
-        public UserManager(IUserDal userDal)
+        private readonly IUserDal _userDal;
+        private readonly ITokenHelper _tokenHelper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public UserManager(IUserDal userDal, ITokenHelper tokenHelper, IHttpContextAccessor httpContextAccessor)
         {
-            _userDal= userDal;
+            _userDal = userDal;
+            _tokenHelper = tokenHelper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-       
-
-        public IResult Delete(User entity)
+        public async Task<IResult> DeleteAsync(User entity)
         {
-            _userDal.Delete(entity);
+            await _userDal.DeleteAsync(entity);
             return new SuccessResult();
         }
 
-        public IDataResult<User> Get(int id)
+        [SecuredOperation("admin,customer")]
+        public async Task<IDataResult<User>> GetByIdAsync(int id)
         {
-            var result = _userDal.Get(u=>u.Id== id);
+            var userId = int.Parse(_tokenHelper.GetId());
+            var result = await _userDal.GetAsync(u => u.Id == userId);
             return new SuccessDataResult<User>(result);
         }
+
         [CacheAspect]
-        public IDataResult<List<User>> GetAll()
+        public async Task<IDataResult<List<User>>> GetAllAsync()
         {
-            var result = _userDal.GetAll();
-            return new SuccessDataResult<List<User>>(result);
+            var result = await _userDal.GetAllAsync();
+            return new SuccessDataResult<List<User>>(result.ToList());
         }
 
-        public IDataResult<User> GetByMail(string email)
+        [SecuredOperation("admin,customer")]
+        public async Task<IDataResult<User>> GetByIdAsync()
         {
-            var result = _userDal.Get(u => u.Email == email);
-            if (result==null)
-            {
-                return new ErrorDataResult<User>(result);
-            }
-            else
-            {
-                return new SuccessDataResult<User>(result);
-            }
+            var userId = int.Parse(_tokenHelper.GetId());
+            var result = await _userDal.GetAsync(u => u.Id == userId);
+            return new SuccessDataResult<User>(result);
         }
 
-        public IDataResult<List<OperationClaim>> GetClaims(User user)
+        public async Task<IDataResult<User>> GetByMailAsync(string email)
         {
-            
-                var result = _userDal.GetClaims(user);
+            var result = await _userDal.GetAsync(u => u.Email == email);
+            return result == null
+                ? new ErrorDataResult<User>(result)
+                : new SuccessDataResult<User>(result);
+        }
+
+        public async Task<IDataResult<List<OperationClaim>>> GetClaimsAsync(User user)
+        {
+            var result = await _userDal.GetClaimsAsync(user);
             return new SuccessDataResult<List<OperationClaim>>(result);
         }
-        [CacheRemoveAspect("IUserService.get")] // sadece get yazılsa idi bu sefer key'inde get olan tüm cache leri silecekti. bu sebeple bu şekil özelleştiridk.
-        public IResult Insert(User entity)
+
+        [CacheRemoveAspect("IUserService.get")]
+        public async Task<IResult> AddAsync(User entity)
         {
-            _userDal.Add(entity);
+            await _userDal.AddAsync(entity);
             return new SuccessResult();
         }
 
-        
-        public IResult Update(User entity)
+        public async Task<IResult> UpdateAsync(User entity)
         {
-            _userDal.Update(entity);
+            await _userDal.UpdateAsync(entity);
             return new SuccessResult();
+        }
+
+        [SecuredOperation("admin,customer")]
+        public async Task<IDataResult<UserProfileDto>> GetDtoAsync()
+        {
+            var id = _httpContextAccessor.HttpContext.User.FindId();
+            var userId = int.Parse(id);
+            var result = await _userDal.GetProfileDtoAsync(userId);
+
+            return result == null
+                ? new ErrorDataResult<UserProfileDto>("Kullanıcı Bilgileri Bulunamadı")
+                : new SuccessDataResult<UserProfileDto>(result, "Kullanıcı Bilgileri Alındı");
         }
     }
 }
