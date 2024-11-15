@@ -9,52 +9,67 @@ namespace WebAPI.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        // önemli not --> bir katman başka bir katman dan bir classı bir efdalı asla interface dışında 
-        // bağlantı kurulmayacak.yoksa büyük problemlere yol açar.
-        IProductService _productService;
+        private readonly IProductService _productService;
+
+        // Dependency Injection için constructor
         public ProductsController(IProductService productService)
         {
-            _productService = productService; // soyut bağlılık olabilir ancak bu nesne ile yapılamaz. sadene interface ile yapılacak
-            // ancak burada şu durum var. parametre ile verilen bir interface olduğu için bu sistem aşağıda parametrede interface ile verdiğimiz de 
-            // sistem çözümleyemeyecek. belki 2 tane maanger var hangisi olduğunu anlayaamyacak.
-            // bu problemin çözümünü mvc de olduğu gibi IoC (Inversion of Control) ile çözeceğiz.
-            // bu bir bellek gibi konteyner'da new PM(), new EfPD() gibi ttuacak ve WEb api bizim yerimize bu referansları atayacak.
+            _productService = productService;
         }
 
         [HttpGet("GetAll")]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
-            var result = _productService.GetAll();
-            if (result.IsSuccess)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
-
-
+            var result = await _productService.GetAllAsync();
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+
+        [HttpGet("getProductsWithImages")]
+        public async Task<IActionResult> GetProductsWithImagesAsync()
+        {
+            var result = await _productService.GetAllWithImageAsync();
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
         [HttpGet("GetById")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> GetAsync(int id)
         {
-            var result = _productService.Get(id);
-            if (result.IsSuccess)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            var result = await _productService.GetProductDtoAsync(id);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
-        [HttpPost("Add")]
-        public IActionResult Add(Product product)
+
+        [HttpGet("GetByCategory")]
+        public async Task<IActionResult> GetAllByCategoryAsync(int categoryId)
         {
-            var result = _productService.Insert(product);
-            if (result.IsSuccess)
-            {
-                return Ok(result);
-            }
-            else
-            {
-                return BadRequest(result);
-            }
+            var result = await _productService.GetAllByCategoryAsync(categoryId);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("Add")]
+        public async Task<IActionResult> AddAsync(Product product)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _productService.AddAsync(product);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("updateProduct")]
+        public async Task<IActionResult> UpdateProductAsync(Product product)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _productService.UpdateAsync(product);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("deleteProduct")]
+        public async Task<IActionResult> DeleteProductAsync(Product product)
+        {
+            var result = await _productService.DeleteAsync(product);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }
 }

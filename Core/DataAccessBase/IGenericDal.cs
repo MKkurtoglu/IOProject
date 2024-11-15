@@ -1,5 +1,6 @@
 ﻿
 using Base.EntitiesBase;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,16 @@ namespace Base.DataAccessBase
 {
     public interface IGenericDal<T> where T : class, IEntity, new()
     {
-        List<T> GetAll(Expression<Func<T, bool>> filter = null);
-        T Get(Expression<Func<T, bool>> filter);
-        void Add(T entity);
-        void Delete(T entity);
-        void Update(T entity);
+       
+            Task<List<T>> GetAllAsync(Expression<Func<T, bool>> filter = null);
+            Task<T> GetAsync(Expression<Func<T, bool>> filter);
+            Task AddAsync(T entity);
+            Task DeleteAsync(T entity);
+            Task UpdateAsync(T entity);
+            Task<IQueryable<T>> GetWithIncludeAsync(
+                Expression<Func<T, bool>> filter = null,
+                Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null
+            );
+        
     }
 }

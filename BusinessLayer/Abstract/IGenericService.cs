@@ -9,8 +9,10 @@ namespace BusinessLayer.Abstract
 {
     public interface IGenericService<T> where T : class, new()
     {
-        IDataResult<List<T>> GetAll();
-        IDataResult<T> Get(int id);
-        IResult Insert(T entity);
+        Task<IDataResult<List<T>>> GetAllAsync();
+        Task<IDataResult<T>> GetByIdAsync(int id);
+        Task<IResult> AddAsync(T entity);
+        Task<IResult> UpdateAsync(T entity);
+        Task<IResult> DeleteAsync(T entity);
     }
 }

@@ -1,4 +1,5 @@
 ﻿
+using Base.Aspects.Autofac.PerformenceAspect;
 using Castle.DynamicProxy;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ namespace Base.Utilities.Interceptors
                 .GetCustomAttributes<MethodInterceptionBaseAttribute>(true);
             classAttributes.AddRange(methodAttributes);
             //classAttributes.Add(new ExceptionLogAspect(typeof(FileLogger)));
+            classAttributes.Add(new PerformanceAspect(5)); // her metoda bunu uyguladık.
 
             return classAttributes.OrderBy(x => x.Priority).ToArray();
         }

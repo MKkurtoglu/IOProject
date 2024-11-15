@@ -1,64 +1,84 @@
 ﻿using Base.EntitiesBase;
-
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Base.DataAccessBase.EfWorkBase
 {
-    public class EfGenericRepositoryDal<T, Context> : IGenericDal<T> where T : class, IEntity, new() where Context : DbContext, new()
+    public class EfGenericRepositoryDal<T, Context> : IGenericDal<T>
+        where T : class, IEntity, new()
+        where Context : DbContext, new()
     {
-        
-        
-        public void Add(T entity)
+        public async Task AddAsync(T entity)
         {
-            
             using (var context = new Context())
             {
-                var addedEntity= context.Entry(entity); // burada gelecek nesneyi bd de referansını ayarladık.
-                addedEntity.State= EntityState.Added;
-                context.SaveChanges(); // değişiklikleri kaydet
-                
+                var addedEntity = context.Entry(entity);
+                addedEntity.State = EntityState.Added;
+                await context.SaveChangesAsync();
             }
         }
 
-        public void Delete(T entity)
+        public async Task DeleteAsync(T entity)
         {
             using (var context = new Context())
             {
                 var deletedEntity = context.Entry(entity);
-                deletedEntity.State= EntityState.Deleted;   
-                context.SaveChanges();
+                deletedEntity.State = EntityState.Deleted;
+                await context.SaveChangesAsync();
             }
         }
 
-        public T Get(Expression<Func<T, bool>> filter)
+        public async Task<T> GetAsync(Expression<Func<T, bool>> filter)
         {
             using (var context = new Context())
             {
-                return context.Set<T>().FirstOrDefault(filter);
+                return await context.Set<T>().FirstOrDefaultAsync(filter);
             }
         }
 
-        public List<T> GetAll(Expression<Func<T, bool>> filter = null)
+        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>> filter = null)
         {
             using (var context = new Context())
             {
-                return filter == null ? context.Set<T>().ToList() : context.Set<T>().Where(filter).ToList();
+                return filter == null
+                    ? await context.Set<T>().ToListAsync()
+                    : await context.Set<T>().Where(filter).ToListAsync();
             }
         }
 
-        public void Update(T entity)
+        public async Task<IQueryable<T>> GetWithIncludeAsync(
+            Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null
+        )
+        {
+            var context = new Context();
+            IQueryable<T> query = context.Set<T>();
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            if (include != null)
+            {
+                query = include(query);
+            }
+
+            return await Task.FromResult(query);
+        }
+
+        public async Task UpdateAsync(T entity)
         {
             using (var context = new Context())
             {
-                var uptededEntity = context.Entry(entity);
-                uptededEntity.State = EntityState.Modified;
-                context.SaveChanges();
+                var updatedEntity = context.Entry(entity);
+                updatedEntity.State = EntityState.Modified;
+                await context.SaveChangesAsync();
             }
         }
     }
